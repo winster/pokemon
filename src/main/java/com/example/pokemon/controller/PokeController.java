@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 
 @AllArgsConstructor
@@ -31,5 +32,9 @@ public class PokeController {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.getMessage());
   }
 
+  @ExceptionHandler
+  public ResponseEntity<String> handle(WebClientResponseException exception) {
+    return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(exception.getMessage());
+  }
 
 }
