@@ -33,8 +33,8 @@ public class PokemonService {
 
   /**
    * Invoke PokeApi Graphql Endpoint
-   * @param pokemonName
-   * @return
+   * @param pokemonName name of pokemon
+   * @return Response from PokeApi
    */
   private Mono<PokeApiResponseDto> requestPokeApi(final String pokemonName) {
     log.info("inside requestPokeApi");
@@ -56,8 +56,8 @@ public class PokemonService {
 
   /**
    * Map PokeApi graphql response to PokemonDto
-   * @param responseDto
-   * @return
+   * @param responseDto response from PokeApi
+   * @return dto object for Api contract
    */
   private Mono<PokemonDto> mapPokeApiResponse(PokeApiResponseDto responseDto) {
     log.info("inside mapPokeApiResponse");
@@ -80,8 +80,8 @@ public class PokemonService {
 
   /**
    * Invoke fun translation Api
-   * @param pokemonDto
-   * @return
+   * @param pokemonDto dto object for Api contract
+   * @return dto object for translation api
    */
   private Mono<TranslationDto> requestTranslationApi(PokemonDto pokemonDto) {
     log.info("inside requestTranslationApi");
@@ -103,9 +103,9 @@ public class PokemonService {
 
   /**
    * Merge translated text into PokemonDto
-   * @param pokemonDto
-   * @param translationDto
-   * @return
+   * @param pokemonDto dto object for Api contract
+   * @param translationDto dto object for translation api
+   * @return dto object for Api contract
    */
   private Mono<PokemonDto> mergeTranslation(PokemonDto pokemonDto, TranslationDto translationDto) {
     if (translationDto.getContents() != null && translationDto.getContents().getTranslated() != null) {
