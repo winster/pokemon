@@ -14,6 +14,9 @@ import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Service
 @AllArgsConstructor
 @Slf4j
@@ -24,8 +27,8 @@ public class PokemonService {
             .flatMap(this::mapPokeApiResponse);
   }
 
-  public Mono<PokemonDto> getPokemonTranslatedDetails(final String pokemonName) {
-    return Mono.justOrEmpty(PokemonDto.builder().build());
+  public Mono<String> getPokemonTranslatedDetails(final String pokemonName) {
+    return this.requestTranslationApi(PokemonDto.builder().isLegendary(true).habitat("cave").name("ditto").description("test").build());
   }
 
   /**
@@ -42,7 +45,7 @@ public class PokemonService {
     variablesDto.setPokemonName(pokemonName);
     requestBodyDto.setQuery(query);
     requestBodyDto.setVariables(variablesDto);
-    log.info("graphQLRequestBody {}", requestBodyDto);
+    log.info("PokeApiRequest {}", requestBodyDto);
     return webClient.post()
             .uri("https://beta.pokeapi.co/graphql/v1beta")
             .bodyValue(requestBodyDto)
@@ -57,7 +60,7 @@ public class PokemonService {
    * @return
    */
   private Mono<PokemonDto> mapPokeApiResponse(PokeApiResponseDto responseDto) {
-    log.info("inside convertGraphqlResponse");
+    log.info("inside mapPokeApiResponse");
     if (responseDto.getData() == null || responseDto.getData().getSpecies() == null ||
             responseDto.getData().getSpecies().size() == 0) {
       return Mono.error(new NoResponseException("No species found"));
@@ -73,6 +76,29 @@ public class PokemonService {
             .habitat(pokemonSpecies.getHabitat().getName())
             .description(pokemonSpecies.getFlavorTexts().get(0).getText())
             .build());
+  }
+
+  /**
+   * Invoke fun translation Api
+   * @param pokemonDto
+   * @return
+   */
+  private Mono<String> requestTranslationApi(PokemonDto pokemonDto) {
+    log.info("inside requestTranslationApi");
+    WebClient webClient = WebClient.builder().build();
+    Map<String, String> requestBodyDto = new HashMap<>();
+    requestBodyDto.put("text", pokemonDto.getDescription());
+    String url = "https://api.funtranslations.com/translate/shakespeare.json";
+    if (pokemonDto.isLegendary() || "cave".equalsIgnoreCase(pokemonDto.getHabitat())) {
+      url = "https://api.funtranslations.com/translate/yoda.json";
+    }
+    log.info("requestBodyDto {} {}", url, requestBodyDto);
+    return webClient.post()
+            .uri(url)
+            .bodyValue(requestBodyDto)
+            .retrieve()
+            .onStatus(HttpStatus.NOT_FOUND::equals, ClientResponse::createException)
+            .bodyToMono(String.class);
   }
 
 }
