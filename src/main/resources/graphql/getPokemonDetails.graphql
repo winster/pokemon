@@ -1,0 +1,12 @@
+query MyQuery($pokemonName: String!) {
+  pokemon_v2_pokemonspecies(where: {name: {_eq: $pokemonName}}) {
+    name
+    is_legendary
+    pokemon_v2_pokemonspeciesflavortexts(limit: 1) {
+      flavor_text
+    }
+    pokemon_v2_pokemonhabitat {
+      name
+    }
+  }
+}
