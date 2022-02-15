@@ -23,7 +23,7 @@ public class PokeController {
   }
 
   @GetMapping("/translated/{name}")
-  public Mono<String> getPokemonTranslatedDetails(@PathVariable final String name) {
+  public Mono<PokemonDto> getPokemonTranslatedDetails(@PathVariable final String name) {
     return pokemonService.getPokemonTranslatedDetails(name);
   }
 

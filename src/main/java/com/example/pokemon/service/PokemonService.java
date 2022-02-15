@@ -1,9 +1,6 @@
 package com.example.pokemon.service;
 
-import com.example.pokemon.dto.PokeApiResponseDto;
-import com.example.pokemon.dto.PokemonDto;
-import com.example.pokemon.dto.PokeApiRequestDto;
-import com.example.pokemon.dto.VariablesDto;
+import com.example.pokemon.dto.*;
 import com.example.pokemon.exception.NoResponseException;
 import com.example.pokemon.util.FileUtil;
 import lombok.AllArgsConstructor;
@@ -27,8 +24,11 @@ public class PokemonService {
             .flatMap(this::mapPokeApiResponse);
   }
 
-  public Mono<String> getPokemonTranslatedDetails(final String pokemonName) {
-    return this.requestTranslationApi(PokemonDto.builder().isLegendary(true).habitat("cave").name("ditto").description("test").build());
+  public Mono<PokemonDto> getPokemonTranslatedDetails(final String pokemonName) {
+    Mono<PokemonDto> pokemonDtoMono = getPokemonDetails(pokemonName);
+    return pokemonDtoMono
+            .flatMap(pokemonDto -> this.requestTranslationApi(pokemonDto)
+                    .flatMap(translationDto -> this.mergeTranslation(pokemonDto, translationDto)));
   }
 
   /**
@@ -83,7 +83,7 @@ public class PokemonService {
    * @param pokemonDto
    * @return
    */
-  private Mono<String> requestTranslationApi(PokemonDto pokemonDto) {
+  private Mono<TranslationDto> requestTranslationApi(PokemonDto pokemonDto) {
     log.info("inside requestTranslationApi");
     WebClient webClient = WebClient.builder().build();
     Map<String, String> requestBodyDto = new HashMap<>();
@@ -92,13 +92,25 @@ public class PokemonService {
     if (pokemonDto.isLegendary() || "cave".equalsIgnoreCase(pokemonDto.getHabitat())) {
       url = "https://api.funtranslations.com/translate/yoda.json";
     }
-    log.info("requestBodyDto {} {}", url, requestBodyDto);
+    log.info("FunTranslationApi Request {} {}", url, requestBodyDto);
     return webClient.post()
             .uri(url)
             .bodyValue(requestBodyDto)
             .retrieve()
             .onStatus(HttpStatus.NOT_FOUND::equals, ClientResponse::createException)
-            .bodyToMono(String.class);
+            .bodyToMono(TranslationDto.class);
   }
 
+  /**
+   * Merge translated text into PokemonDto
+   * @param pokemonDto
+   * @param translationDto
+   * @return
+   */
+  private Mono<PokemonDto> mergeTranslation(PokemonDto pokemonDto, TranslationDto translationDto) {
+    if (translationDto.getContents() != null && translationDto.getContents().getTranslated() != null) {
+      pokemonDto.setDescription(translationDto.getContents().getTranslated());
+    }
+    return Mono.just(pokemonDto);
+  }
 }
