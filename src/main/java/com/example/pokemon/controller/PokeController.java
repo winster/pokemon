@@ -14,7 +14,7 @@ public class PokeController {
   private final PokemonService pokemonService;
 
   @GetMapping("/{name}")
-  public Mono<String> getPokemonDetails(@PathVariable final String name) {
+  public Mono<PokemonDto> getPokemonDetails(@PathVariable final String name) {
     return pokemonService.getPokemonDetails(name);
   }
 
