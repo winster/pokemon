@@ -1,5 +1,6 @@
 package com.example.pokemon.service;
 
+import com.example.pokemon.config.AppConfigProperties;
 import com.example.pokemon.dto.*;
 import com.example.pokemon.exception.NoResponseException;
 import com.example.pokemon.util.FileUtil;
@@ -18,6 +19,10 @@ import java.util.Map;
 @AllArgsConstructor
 @Slf4j
 public class PokemonService {
+
+  private final AppConfigProperties appConfigProperties;
+
+  private static final String GRAPHQL_QUERY = "getPokemonDetails";
 
   public Mono<PokemonDto> getPokemonDetails(final String pokemonName) {
     return requestPokeApi(pokemonName)
@@ -40,14 +45,14 @@ public class PokemonService {
     log.info("inside requestPokeApi");
     WebClient webClient = WebClient.builder().build();
     PokeApiRequestDto requestBodyDto = new PokeApiRequestDto();
-    final String query = FileUtil.getSchemaFromFileName("getPokemonDetails");
+    final String query = FileUtil.getSchemaFromFileName(GRAPHQL_QUERY);
     VariablesDto variablesDto = new VariablesDto();
     variablesDto.setPokemonName(pokemonName);
     requestBodyDto.setQuery(query);
     requestBodyDto.setVariables(variablesDto);
     log.info("PokeApiRequest {}", requestBodyDto);
     return webClient.post()
-            .uri("https://beta.pokeapi.co/graphql/v1beta")
+            .uri(appConfigProperties.getUrlPoki())
             .bodyValue(requestBodyDto)
             .retrieve()
             .onStatus(HttpStatus.NOT_FOUND::equals, ClientResponse::createException)
@@ -88,9 +93,10 @@ public class PokemonService {
     WebClient webClient = WebClient.builder().build();
     Map<String, String> requestBodyDto = new HashMap<>();
     requestBodyDto.put("text", pokemonDto.getDescription());
-    String url = "https://api.funtranslations.com/translate/shakespeare.json";
-    if (pokemonDto.isLegendary() || "cave".equalsIgnoreCase(pokemonDto.getHabitat())) {
-      url = "https://api.funtranslations.com/translate/yoda.json";
+    String url = appConfigProperties.getUrlShakespeare();
+    if (pokemonDto.isLegendary()
+            || appConfigProperties.getHabitat().equalsIgnoreCase(pokemonDto.getHabitat())) {
+      url = appConfigProperties.getUrlYoda();
     }
     log.info("FunTranslationApi Request {} {}", url, requestBodyDto);
     return webClient.post()
