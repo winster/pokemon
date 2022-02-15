@@ -3,6 +3,7 @@ package com.example.pokemon.controller;
 import com.example.pokemon.dto.PokemonDto;
 import com.example.pokemon.exception.NoResponseException;
 import com.example.pokemon.service.PokemonService;
+import io.micrometer.core.annotation.Timed;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,7 @@ import reactor.core.publisher.Mono;
 @AllArgsConstructor
 @RestController
 @RequestMapping("pokemon")
+@Timed
 public class PokeController {
 
   private final PokemonService pokemonService;

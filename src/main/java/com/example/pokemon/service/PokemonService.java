@@ -20,9 +20,8 @@ import java.util.Map;
 @Slf4j
 public class PokemonService {
 
-  private final AppConfigProperties appConfigProperties;
-
   private static final String GRAPHQL_QUERY = "getPokemonDetails";
+  private final AppConfigProperties appConfigProperties;
 
   public Mono<PokemonDto> getPokemonDetails(final String pokemonName) {
     return requestPokeApi(pokemonName)
@@ -38,6 +37,7 @@ public class PokemonService {
 
   /**
    * Invoke PokeApi Graphql Endpoint
+   *
    * @param pokemonName name of pokemon
    * @return Response from PokeApi
    */
@@ -61,6 +61,7 @@ public class PokemonService {
 
   /**
    * Map PokeApi graphql response to PokemonDto
+   *
    * @param responseDto response from PokeApi
    * @return dto object for Api contract
    */
@@ -85,6 +86,7 @@ public class PokemonService {
 
   /**
    * Invoke fun translation Api
+   *
    * @param pokemonDto dto object for Api contract
    * @return dto object for translation api
    */
@@ -104,12 +106,14 @@ public class PokemonService {
             .bodyValue(requestBodyDto)
             .retrieve()
             .onStatus(HttpStatus.NOT_FOUND::equals, ClientResponse::createException)
-            .bodyToMono(TranslationDto.class);
+            .bodyToMono(TranslationDto.class)
+            .doOnError(throwable -> log.error("Yet to handle IO Exception"));
   }
 
   /**
    * Merge translated text into PokemonDto
-   * @param pokemonDto dto object for Api contract
+   *
+   * @param pokemonDto     dto object for Api contract
    * @param translationDto dto object for translation api
    * @return dto object for Api contract
    */
