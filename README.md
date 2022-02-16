@@ -2,6 +2,7 @@
 Application to generate Pokemon details based on a given name by invoking pokeApi and fun translation Api
 
 ### How to install and run
+Pre-requisite: docker installed and is running
 ```
 docker build -t springio/gs-spring-boot-docker .
 docker run -p 8080:8080 springio/gs-spring-boot-docker
