@@ -38,6 +38,9 @@ docker run -p 8080:8080 springio/gs-spring-boot-docker
  - Use API key for fun-translation API
  - Reconsider the Graphql integration with regard to General Availability
  - Integrate with a configuration server for audit and dynamic change in properties
+ - More metrics 
+    - Count of outgoing requests for each endpoint
+    - Timers 
  
  
 
