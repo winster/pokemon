@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 @Component
 @ConfigurationProperties(prefix = "app")
 public class AppConfigProperties {
-  private String urlPoki;
+  private String urlPokeApi;
   private String urlShakespeare;
   private String urlYoda;
   private String habitat;

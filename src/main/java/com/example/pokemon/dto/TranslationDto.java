@@ -1,7 +1,9 @@
 package com.example.pokemon.dto;
 
+import lombok.Builder;
 import lombok.Getter;
 
+@Builder
 @Getter
 public class TranslationDto {
   private SuccessDto success;
@@ -12,6 +14,7 @@ public class TranslationDto {
     private int total;
   }
 
+  @Builder
   @Getter
   public static class ContentsDto {
     private String translated;

@@ -21,12 +21,12 @@ public class PokeController {
 
   @GetMapping("/{name}")
   public Mono<PokemonDto> getPokemonDetails(@PathVariable final String name) {
-    return pokemonService.getPokemonDetails(name);
+    return pokemonService.getPokemonDetailsByName(name);
   }
 
   @GetMapping("/translated/{name}")
   public Mono<PokemonDto> getPokemonTranslatedDetails(@PathVariable final String name) {
-    return pokemonService.getPokemonTranslatedDetails(name);
+    return pokemonService.getPokemonTranslatedDetailsByName(name);
   }
 
   @ExceptionHandler

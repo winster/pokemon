@@ -1,28 +1,34 @@
 package com.example.pokemon.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 
-@Data
+@Getter
+@Setter
 public class PokeApiResponseDto {
 
   private ResponseData data;
 
   @Getter
+  @Setter
   public static class PokemonSpeciesFlavorTexts {
     @JsonProperty("flavor_text")
     private String text;
   }
 
   @Getter
+  @Setter
   public static class PokemonHabitat {
     private String name;
   }
 
   @Getter
+  @Setter
   public static class PokemonSpecies {
     private String name;
 
@@ -37,6 +43,7 @@ public class PokeApiResponseDto {
   }
 
   @Getter
+  @Setter
   public static class ResponseData {
     @JsonProperty("pokemon_v2_pokemonspecies")
     private List<PokemonSpecies> species;

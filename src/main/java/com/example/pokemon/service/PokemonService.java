@@ -20,16 +20,18 @@ import java.util.Map;
 @Slf4j
 public class PokemonService {
 
-  private static final String GRAPHQL_QUERY = "getPokemonDetails";
   private final AppConfigProperties appConfigProperties;
+  private final WebClient webClient;
 
-  public Mono<PokemonDto> getPokemonDetails(final String pokemonName) {
-    return requestPokeApi(pokemonName)
+  private static final String GRAPHQL_QUERY = "getPokemonDetails";
+
+  public Mono<PokemonDto> getPokemonDetailsByName(final String pokemonName) {
+    return requestPokeApiByName(pokemonName)
             .flatMap(this::mapPokeApiResponse);
   }
 
-  public Mono<PokemonDto> getPokemonTranslatedDetails(final String pokemonName) {
-    Mono<PokemonDto> pokemonDtoMono = getPokemonDetails(pokemonName);
+  public Mono<PokemonDto> getPokemonTranslatedDetailsByName(final String pokemonName) {
+    Mono<PokemonDto> pokemonDtoMono = getPokemonDetailsByName(pokemonName);
     return pokemonDtoMono
             .flatMap(pokemonDto -> this.requestTranslationApi(pokemonDto)
                     .flatMap(translationDto -> this.mergeTranslation(pokemonDto, translationDto)));
@@ -41,9 +43,8 @@ public class PokemonService {
    * @param pokemonName name of pokemon
    * @return Response from PokeApi
    */
-  private Mono<PokeApiResponseDto> requestPokeApi(final String pokemonName) {
+  Mono<PokeApiResponseDto> requestPokeApiByName(final String pokemonName) {
     log.info("inside requestPokeApi");
-    WebClient webClient = WebClient.builder().build();
     PokeApiRequestDto requestBodyDto = new PokeApiRequestDto();
     final String query = FileUtil.getSchemaFromFileName(GRAPHQL_QUERY);
     VariablesDto variablesDto = new VariablesDto();
@@ -52,7 +53,7 @@ public class PokemonService {
     requestBodyDto.setVariables(variablesDto);
     log.info("PokeApiRequest {}", requestBodyDto);
     return webClient.post()
-            .uri(appConfigProperties.getUrlPoki())
+            .uri(appConfigProperties.getUrlPokeApi())
             .bodyValue(requestBodyDto)
             .retrieve()
             .onStatus(HttpStatus.NOT_FOUND::equals, ClientResponse::createException)
@@ -90,9 +91,8 @@ public class PokemonService {
    * @param pokemonDto dto object for Api contract
    * @return dto object for translation api
    */
-  private Mono<TranslationDto> requestTranslationApi(PokemonDto pokemonDto) {
+  Mono<TranslationDto> requestTranslationApi(PokemonDto pokemonDto) {
     log.info("inside requestTranslationApi");
-    WebClient webClient = WebClient.builder().build();
     Map<String, String> requestBodyDto = new HashMap<>();
     requestBodyDto.put("text", pokemonDto.getDescription());
     String url = appConfigProperties.getUrlShakespeare();
